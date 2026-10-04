@@ -1,0 +1,18 @@
+import './styles/tokens.css';
+import './styles/app.css';
+import { Engine } from './audio/engine';
+import { mountApp } from './ui/app';
+import { attachAutosave } from './io/autosave';
+import { applyTheme, getTheme } from './ui/theme';
+
+applyTheme(getTheme());
+const engine = new Engine();
+mountApp(document.getElementById('app')!, engine);
+attachAutosave(engine);
+
+// ?debug exposes the engine on window.__fl (for poking at it from the console)
+if (new URLSearchParams(location.search).has('debug')) (window as unknown as { __fl: Engine }).__fl = engine;
+
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => {});
+}
